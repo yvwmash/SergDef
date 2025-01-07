@@ -1,0 +1,99 @@
+-- read excel to table
+-- convert to CSV, COPY
+create or replace function from_excel(fn text, tn text, has_header boolean default TRUE, delimiter text default ',')
+returns int as 
+$$
+ import plpy
+ import sys
+ import os
+ import locale
+ import csv
+ import subprocess
+ from inc import exit, true, false, none
+
+ locale.setlocale(locale.LC_ALL, 'uk_UA.utf8')
+
+ def _exec(q, status):
+  try:
+   p  = plpy.prepare(q)
+   rv = plpy.execute(p)
+  except plpy.SPIError as e:
+   plpy.notice(q, e)
+   return status
+  return 0
+
+ _imp_path = os.getenv('DB_IMPORT')
+ if _imp_path is none:
+  _imp_path = ''
+
+ _h  = 0
+ _nc = 0
+ _lc = []
+
+ if has_header == false or has_header == none:
+  _h = none
+
+ # xlsx to csv
+ res = subprocess.run(["xlsx2csv", f"{_imp_path}{fn}"], stdout = subprocess.PIPE)
+ if res.returncode == 0:
+  outp = res.stdout
+  outp = outp.decode("utf-8")
+  outp = outp.replace('\n', '')
+ else:
+  plpy.notice('xlsx2csv: ' + str(res.returncode))
+  return -1
+
+ # read first row of a CSV file
+ try:
+  f = open(f"{outp}", 'r')
+ except OSError as e:
+  plpy.notice(e)
+  return e.errno
+ r = csv.reader(f)
+ row = next(r)
+ f.close()
+
+ _nc = len(row)
+
+ # create list of column names
+ if _h == none:
+  cnm = 'c_'
+  for i in range(0, _nc):
+   _lc.append(cnm + i)
+ else:
+  _lc = row
+
+ # create empty table
+ q = f"drop table if exists {tn}"
+ status = _exec(q, -2)
+ if status != 0:
+  return status
+ q = f"create table {tn}()"
+ status = _exec(q, -3)
+ if status != 0:
+  return status
+ q = f"alter table {tn} set UNLOGGED"
+ status = _exec(q, -4)
+ if status != 0:
+  return status
+
+ # add columns to the table
+ for i in range(0, _nc):
+  column_nm_ = plpy.quote_ident(_lc[i])
+  q = f"alter table {tn} add column {column_nm_} text"
+  status = _exec(q, -5)
+  if status != 0:
+   return status
+
+ # COPY
+ if _h == none:
+  _h = ''
+ else:
+  _h = ', header'
+ q = f"copy {tn} from '{outp}' with (format csv, delimiter '{delimiter}'{_h})"
+ status = _exec(q, -6)
+ if status != 0:
+  return status
+
+ return 0
+$$ language 'plpython3u';

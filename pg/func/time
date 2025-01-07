@@ -1,0 +1,18 @@
+# pysql, UNLOGGED
+# read csv
+# INSERT
+00:28,456
+
+# pysql, UNLOGGED
+# read csv
+# COPY
+00:04,867
+
+# python
+# read XLSX file
+01:45.16
+
+# C++
+# read XLSX file
+0:28.03
+

@@ -1,0 +1,41 @@
+> groupadd db
+> usermod -G db -a yv
+> usermod -G db -a postgres
+> usermod -G ssl-cert -a postgres
+> members db
+> id # show effective groups
+> su - yv # need to login/logout(restart in my case) to catch up with groups
+
+> su
+> make install
+> adduser --disabled-password postgres
+> mkdir /usr/local/pgsql/data
+> mkdir /usr/local/pgsql/log
+> chown postgres /usr/local/pgsql/data
+> chown postgres /usr/local/pgsql/data
+> chmod 770 /usr/local/pgsql/data
+> chmod 770 /usr/local/pgsql/log
+> chgrp -R db /usr/local/pgsql/data
+> chgrp -R db /usr/local/pgsql/log
+
+> su - postgres
+
+> /usr/local/pgsql/bin/initdb --auth=peer\
+                              --pgdata=/usr/local/pgsql/data\
+                              --locale=uk_UA.utf8\
+                              --encoding=UTF8\
+                              --allow-group-access\
+                              --waldir=/usr/local/pgsql/data/log
+
+> /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data -l log.0 start
+### server started
+
+> /usr/local/pgsql/bin/createuser -p 5432 --superuser yv
+# > /usr/local/pgsql/bin/dropuser yvmash
+> /usr/local/pgsql/bin/createdb -p 5432 yv
+# > /usr/local/pgsql/bin/dropdb yvmash
+
+> chgrp -R db src/test/regress
+> chgrp -R db contrib/spi
+# a directory requires execute permission in order to cd into it
+> chmod -R 770 src/test/regress

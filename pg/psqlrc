@@ -1,0 +1,7 @@
+\setenv PAGER 'less -S'
+
+\set PROMPT1 '%[%033[1;31m%]>%[%033[0m%] '
+
+\pset null '[null]'
+\timing
+\x auto

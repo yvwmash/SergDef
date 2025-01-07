@@ -1,0 +1,8 @@
+{
+ "___tmp"   : {"us" : "maxim",     "host" : "78.47.238.131",                                   "port" : 3306,   "passw" : "9fShTw3sHTtsTZQ6",          "db_nm": "pro_creditup_cab"},
+ "front"    : {"us" : "maxim",     "host" : "localhost",                                       "port" : 3307,   "passw" : "9fShTw3sHTtsTZQ6",          "db_nm": "pro_creditup_cab"},
+ "serv"     : {"us" : "ymash",     "host" : "94.130.54.136",                                   "port" : 43212,  "passw" : "2aGb2sbLsE2zBPysLuEeDZ9y",  "db_nm": ""},
+ "decision" : {"us" : "analytic",  "host" : "176.9.43.166",                                    "port" : 3306,   "passw" : "Ld78ew29JA11",              "db_nm": "creditup_dmaker" },
+ "asterisk" : {"us" : "analytic2", "host" : "pbx.creditup.com.ua",                             "port" : 3306,   "passw" : "ZX13gt87",                  "db_nm": "asteriskcdr"},
+ "iptel"    : {"us" : "developer", "host" : "https://creditup.iptel.ua:8443/osdialapi/rest/",  "port" : 8080,   "passw" : "devDialerApi589r2!",        "db_nm": "iptel"}
+}

@@ -1,0 +1,78 @@
+-E     : will describe the underlaying queries of the \
+-l     : psql will list all databases and then exit
+\d     : Show table definition including triggers
+\d+    : More detailed table definition including description and physical disk size
+\dy    : List events
+\df    : List functions
+\di    : List indexes
+\dn    : List schemas
+\dt *.*: List tables from all schemas
+\dT+   : List all data types
+\dv    : List views
+\df+   : Show function SQL code.
+\x     : Pretty-format query results instead of the not-so-useful ASCII tables
+
+\copy (SELECT * FROM __table_name__) TO 'file_path_and_name.csv' WITH CSV: Export a table as CSV
+
+\du                                              : List users
+\du <nm>                                         : List a username if present.
+create role <nm>                                 : Create a role with an existing username.
+create role <nm> noinherit login password <pass>;: Create a role with username and password.
+set role <nm>;                                   : Change role for current session to <nm>
+grant <r1> to <r2>;                              : Allow <r1> to set its role as <r2>
+
+# List procedure/function
+SELECT * FROM pg_proc WHERE proname='__procedurename__'
+
+# List view (including the definition)
+SELECT * FROM pg_views WHERE viewname='__viewname__';
+
+# Show DB table space in use
+SELECT pg_size_pretty(pg_total_relation_size('__table_name__'));
+
+# Show DB space in use
+SELECT pg_size_pretty(pg_database_size('__database_name__'));
+
+# Show current user's statement timeout
+show statement_timeout;
+
+# Show table indexes
+SELECT * FROM pg_indexes WHERE tablename='__table_name__' AND schemaname='__schema_name__';
+
+# Get all indexes from all tables of a schema
+SELECT
+   t.relname AS table_name,
+   i.relname AS index_name,
+   a.attname AS column_name
+FROM
+   pg_class t,
+   pg_class i,
+   pg_index ix,
+   pg_attribute a,
+    pg_namespace n
+WHERE
+   t.oid = ix.indrelid
+   AND i.oid = ix.indexrelid
+   AND a.attrelid = t.oid
+   AND a.attnum = ANY(ix.indkey)
+   AND t.relnamespace = n.oid
+    AND n.nspname = 'kartones'
+ORDER BY
+   t.relname,
+   i.relname
+
+# Queries being executed at a certain DB
+SELECT datname, application_name, pid, backend_start, query_start, state_change, state, query 
+  FROM pg_stat_activity 
+  WHERE datname='__database_name__';
+
+# Get all queries from all dbs waiting for data (might be hung)
+SELECT * FROM pg_stat_activity WHERE waiting='t'
+
+# Currently running queries with process pid
+SELECT pg_stat_get_backend_pid(s.backendid) AS procpid, 
+  pg_stat_get_backend_activity(s.backendid) AS current_query
+FROM (SELECT pg_stat_get_backend_idset() AS backendid) AS s;
+
+# Get oid having a table name
+'<tab_nm>'::regclass::oid: Get oid having a table name

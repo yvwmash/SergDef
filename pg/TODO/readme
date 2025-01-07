@@ -1,0 +1,9 @@
+/* convenience script */
+> sudo touch /usr/local/bin/pg_login.sh
+
+/* general file locations */
+SELECT name, setting FROM pg_settings WHERE category = 'File Locations';
+
+/* if server was created with postgres user */
+sudo -u postgres /usr/local/pgsql/bin/createuser --superuser yv
+sudo -u postgres /usr/local/pgsql/bin/createdb               yv
